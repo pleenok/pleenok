@@ -1,0 +1,5 @@
+*.pyc
+.idea
+dist
+pleenok.egg-info
+build
