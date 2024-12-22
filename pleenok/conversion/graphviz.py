@@ -18,22 +18,36 @@ def generate_dot(root: Node) -> str:
 		visited.add(node_id)
 
 		if isinstance(node, Gate):
-			gates_definitions.append(f"	n{node_id} [label=\"{node.gate_type.value}\"];")
+			gates_definitions.append(f"\tn{node_id} [label=\"{node.gate_type.value}\"];")
+			if node.label is not None:
+				# gates_definitions
+				basic_events_definitions.append(f"\tn{node_id}_label [label=\"{node.label}\"];")
+				relationships.append(f"\tn{node_id} -> n{node_id}_label;")
 			subgraph = []
 			for child in node.children:
 				child_id = child.get_id()
-				relationships.append(f"  n{child_id} -> n{node_id};")
+				if isinstance(child, Gate) and child.label is not None:
+					relationships.append(f"\tn{child_id}_label -> n{node_id};")
+				else:
+					relationships.append(f"\tn{child_id} -> n{node_id};")
 				traverse(child, node_id)
 			if node.gate_type == GateType.SEQUENCE_AND:
-				sequence_relationships.extend(
-					[f"n{node.children[i].get_id()} -> n{node.children[i + 1].get_id()}" for i in
-					 range(len(node.children) - 1)])
-				subgraphs.append([f"n{child.get_id()}" for child in node.children])
+				for i in range(len(node.children) - 1):
+					c1 = node.children[i]
+					c2 = node.children[i + 1]
+					c1_id = "n" + c1.get_id()
+					c2_id = "n" + c2.get_id()
+					if isinstance(c1, Gate) and c1.label is not None:
+						c1_id = c1_id + "_label"
+					if isinstance(c2, Gate) and c2.label is not None:
+						c2_id = c2_id + "_label"
+					sequence_relationships.append(f"{c1_id} -> {c2_id}")
+					subgraphs.append([f"{c1_id} {c2_id} "])
 		else:
-			if node.label == None:
-				basic_events_definitions.append(f"	n{node_id} [label=<<i>No action</i>>,shape=\"plain\",color=\"#ffffff\",fillcolor=\"#ffffff\"];")
+			if node.label is None:
+				basic_events_definitions.append(f"\tn{node_id} [label=<<i>No action</i>>,shape=\"plain\",color=\"#ffffff\",fillcolor=\"#ffffff\"];")
 			else:
-				basic_events_definitions.append(f"	n{node_id} [label=\"{node.label}\"];")
+				basic_events_definitions.append(f"\tn{node_id} [label=\"{node.label}\"];")
 
 	traverse(root)
 
@@ -53,7 +67,7 @@ digraph AttackTree {
 		fontname = "Consolas,monospace"
 		fontsize = 10
 	]
-    """
+"""
 	dot += "\n".join(gates_definitions) + "\n"
 	dot += """
 	node [
@@ -65,13 +79,13 @@ digraph AttackTree {
 		fontname = "Calibri,Arial,sans-serif"
 		fontsize = 14
 	]
-    """
+"""
 	dot += "\n".join(basic_events_definitions) + "\n"
 	dot += """
 	edge[
 		dir = "none"
 	]
-    """
+"""
 	dot += "\n".join(relationships) + "\n"
 	dot += """
 	edge[
@@ -81,9 +95,9 @@ digraph AttackTree {
 		arrowsize = 0.5
 		dir = "forward"
 	]
-    """
-	dot += "\n".join(sequence_relationships) + "\n"
+	"""
+	dot += "\n\t".join(sequence_relationships) + "\n"
 	for subgraph in subgraphs:
-		dot += f"	{{rank=same; {' '.join(subgraph)};}}\n"
+		dot += f"\n	{{rank=same; {' '.join(subgraph)} }}"
 	dot += "\n}"
 	return Source(dot)
