@@ -98,6 +98,6 @@ digraph AttackTree {
 	"""
 	dot += "\n\t".join(sequence_relationships) + "\n"
 	for subgraph in subgraphs:
-		dot += f"\n	{{rank=same; {' '.join(subgraph)} }}"
+		dot += f"\n	{{ rank=same; {' '.join(subgraph)} }}"
 	dot += "\n}"
 	return Source(dot)
