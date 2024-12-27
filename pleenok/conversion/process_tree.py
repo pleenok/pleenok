@@ -1,6 +1,6 @@
 from pm4py import ProcessTree
 from pm4py.objects.process_tree.obj import Operator as PT_Operator
-from pleenok.model.attack_tree import GateType, Gate, Node
+from pleenok.model.attack_tree import AttackTree, GateType, Gate, Node
 
 
 def _process_tree_operators_to_attack_tree_operators(operator: str) -> str:
@@ -29,20 +29,23 @@ def _attack_tree_operators_to_process_tree_operators(operator: str) -> str:
 		raise Exception(f"Attack Tree operator `{operator}' not supported")
 
 
-def process_tree_to_attack_tree(process_tree: ProcessTree) -> Gate:
-	if not process_tree.operator is None:  # the node is an operator
-		gate = Gate(_process_tree_operators_to_attack_tree_operators(process_tree.operator))
-		for child in process_tree.children:
-			gate.add_child(process_tree_to_attack_tree(child))
-		return gate
-	else:  # the node is an activity
-		if process_tree.label is None:
-			return Node(None)
-		else:
-			return Node(process_tree.label)
+def process_tree_to_attack_tree(process_tree: ProcessTree) -> AttackTree:
+	def traverse(pt: ProcessTree):
+		if not pt.operator is None:  # the node is an operator
+			gate = Gate(_process_tree_operators_to_attack_tree_operators(pt.operator))
+			for child in pt.children:
+				gate.add_child(traverse(child))
+			return gate
+		else:  # the node is an activity
+			if pt.label is None:
+				return Node(None)
+			else:
+				return Node(pt.label)
+			
+	return AttackTree(traverse(process_tree), "Conversion from process tree")
 
 
-def attack_tree_to_process_tree_string(at: Node) -> str:
+def attack_tree_to_process_tree_string(at: AttackTree) -> str:
 	def traverse(at: Node):
 		if isinstance(at, Gate):
 			operator = _attack_tree_operators_to_process_tree_operators(at.gate_type)
@@ -51,4 +54,4 @@ def attack_tree_to_process_tree_string(at: Node) -> str:
 		else:
 			return "'" + at.get_label() + "'"
 
-	return traverse(at)
+	return traverse(at.root)

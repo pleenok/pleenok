@@ -1,8 +1,8 @@
 from graphviz import Source
-from pleenok.model.attack_tree import Node, Gate, GateType
+from pleenok.model.attack_tree import AttackTree, Node, Gate, GateType
 
 
-def generate_dot(root: Node) -> str:
+def generate_dot(at: AttackTree) -> str:
 	gates_definitions = []
 	basic_events_definitions = []
 	relationships = []
@@ -49,7 +49,7 @@ def generate_dot(root: Node) -> str:
 			else:
 				basic_events_definitions.append(f"\tn{node_id} [label=\"{node.label}\"];")
 
-	traverse(root)
+	traverse(at.root)
 
 	dot = """
 digraph AttackTree {

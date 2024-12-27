@@ -1,4 +1,4 @@
-from pleenok.model.attack_tree import Gate, GateType
+from pleenok.model.attack_tree import Gate, GateType, AttackTree
 
 
 def generate_at():
@@ -14,4 +14,4 @@ def generate_at():
 	o5 = o3.add_gate(GateType.AND)
 	o5.add_attack("Break WPA keys")
 	o5.add_attack("Find WLAN")
-	return at
+	return AttackTree(at, "test")

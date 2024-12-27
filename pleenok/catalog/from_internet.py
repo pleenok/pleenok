@@ -1,7 +1,7 @@
-from pleenok.model.attack_tree import Gate, GateType
+from pleenok.model.attack_tree import AttackTree, Gate, GateType
 
 
-def defcon_risk() -> Gate:
+def defcon_risk() -> AttackTree:
 	# From https://images.squarespace-cdn.com/content/v1/654fa95a9084f270bbe850ea/18a7b21d-2704-4fe4-ad10-6ed53fb7e4b7/Screenshot+2024-08-03+at+12.34.46%E2%80%AFPM.png
 	at2 = Gate(GateType.OR, "Defcon Risk")
 	at2_1 = at2.add_gate(GateType.OR, "Steal property")
@@ -25,10 +25,10 @@ def defcon_risk() -> Gate:
 	at2_3 = at2.add_gate(GateType.OR, "Bodily harm")
 	at2_3.add_attack("Targetted attack")
 	at2_3.add_attack("Mass attack")
-	return at2
+	return AttackTree(at2, "Defcon Risk")
 
 
-def amezana_1() -> Gate:
+def amezana_1() -> AttackTree:
 	# From https://www.amenaza.com/attack-tree-what-are.php
 	at = Gate(GateType.AND, "Physically damage cooling pumps")
 	at.add_attack("Gather information")
@@ -43,4 +43,4 @@ def amezana_1() -> Gate:
 	or111.add_attack("Create trained agent")
 	or111.add_attack("Apply for employment")
 	or111.add_attack("Pass screening procedure")
-	return at
+	return AttackTree(at, "Amezana 1")

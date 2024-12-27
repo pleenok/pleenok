@@ -1,5 +1,5 @@
 import re
-from pleenok.model.attack_tree import Node, Gate, GateType
+from pleenok.model.attack_tree import AttackTree, Node, Gate, GateType
 
 
 def _capitalize(name: str) -> str:
@@ -17,7 +17,7 @@ def _generate_label(node: Node) -> str:
 		return _capitalize(node.label)
 
 
-def generate_risqflan(at: Node) -> str:
+def generate_risqflan(at: AttackTree) -> str:
 	attack_nodes = []
 	attack_diagram = []
 	attack_node_root = str(at)
@@ -43,7 +43,7 @@ def generate_risqflan(at: Node) -> str:
 		else:
 			attack_nodes.append(_generate_label(at))
 
-	traverse(at)
+	traverse(at.root)
 	template = """
 begin model Empty
 // This is an empty RisQFLan file
