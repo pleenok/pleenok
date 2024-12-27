@@ -48,5 +48,14 @@ class Gate(Node):
 		self.add_child(be)
 		return be
 
+	def add_and_gate(self, label: str = None):
+		return self.add_gate(GateType.AND, label)
+
+	def add_sequence_and_gate(self, label: str = None):
+		return self.add_gate(GateType.SEQUENCE_AND, label)
+
+	def add_or_gate(self, label: str = None):
+		return self.add_gate(GateType.OR, label)
+
 	def __str__(self) -> str:
 		return "gate_" + self.get_id()
