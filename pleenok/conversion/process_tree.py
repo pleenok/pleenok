@@ -52,6 +52,8 @@ def attack_tree_to_process_tree_string(at: AttackTree) -> str:
 			children = ",".join(traverse(node) for node in at.children)
 			return f"{operator}({children})"
 		else:
+			if at.get_label() is None:
+				return "tau"
 			return "'" + at.get_label() + "'"
 
 	return traverse(at.root)
