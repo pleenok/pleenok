@@ -18,18 +18,36 @@ def generate_dot(at: AttackTree) -> str:
 		visited.add(node_id)
 
 		if isinstance(node, Gate):
-			gates_definitions.append(f"\tn{node_id} [label=\"{node.gate_type.value}\"];")
 			if node.label is not None:
-				# gates_definitions
-				basic_events_definitions.append(f"\tn{node_id}_label [label=\"{node.label}\"];")
-				relationships.append(f"\tn{node_id} -> n{node_id}_label;")
+				gates_definitions.append(f"""
+	n{node_id} [
+		margin = 0,
+		fillcolor = transparent,
+		shape = plaintext,
+		label = <
+			<table border="0" cellpadding="8" cellspacing="0">
+			  <tr>
+				<td color="#DD0000" colspan="3" bgcolor="#F0F0F0" border="1"><font color="#000000" point-size="14" face="Calibri,Arial,sans-serif">{node.label}</font></td>
+			  </tr>
+			  <tr>
+				<td></td>
+				<td bgcolor="#666666" port="op" border="1" color="#000000" height="20"><font color="#FFFFFF" point-size="10" face="Consolas,monospace">{node.gate_type.value}</font></td>
+				<td></td>
+			  </tr>
+			</table>> ];""")
+			else:
+				gates_definitions.append(f"\tn{node_id} [label=\"{node.gate_type.value}\"];")
 			subgraph = []
 			for child in node.children:
 				child_id = child.get_id()
-				if isinstance(child, Gate) and child.label is not None:
-					relationships.append(f"\tn{child_id}_label -> n{node_id};")
-				else:
-					relationships.append(f"\tn{child_id} -> n{node_id};")
+				source = f"n{child_id}"
+				target = f"n{node_id}"
+				if not isinstance(child, Gate):
+					source += ":lbl:n"
+				if node.label is not None:
+					target += ":op"
+
+				relationships.append(f"\t{source} -> {target};")
 				traverse(child, node_id)
 			if node.gate_type == GateType.SEQUENCE_AND:
 				for i in range(len(node.children) - 1):
@@ -37,17 +55,13 @@ def generate_dot(at: AttackTree) -> str:
 					c2 = node.children[i + 1]
 					c1_id = "n" + c1.get_id()
 					c2_id = "n" + c2.get_id()
-					if isinstance(c1, Gate) and c1.label is not None:
-						c1_id = c1_id + "_label"
-					if isinstance(c2, Gate) and c2.label is not None:
-						c2_id = c2_id + "_label"
 					sequence_relationships.append(f"{c1_id} -> {c2_id}")
 					subgraphs.append([f"{c1_id} {c2_id} "])
 		else:
 			if node.label is None:
 				basic_events_definitions.append(f"\tn{node_id} [label=<<i>No action</i>>,shape=\"plain\",color=\"#ffffff\",fillcolor=\"#ffffff\"];")
 			else:
-				basic_events_definitions.append(f"\tn{node_id} [label=\"{node.label}\"];")
+				basic_events_definitions.append(f"\tn{node_id} [label=<<table border=\"0\" cellpadding=\"8\" cellspacing=\"0\"><tr><td port=\"lbl\" color=\"#DD0000\" bgcolor=\"#F0F0F0\" border=\"1\"><font color=\"#000000\" point-size=\"14\" face=\"Calibri,Arial,sans-serif\">{node.label}</font></td></tr><tr><td height=\"20\"><font point-size=\"10\"> </font></td></tr></table>>];")
 
 	traverse(at.root)
 
@@ -57,27 +71,31 @@ digraph AttackTree {
 	outputorder = "edgesfirst"
 	rankdir = "BT"
 	ordering = in
+	splines = polyline
 	
 	node [
 		color = "#000000"
 		fillcolor = "#666666"
 		fontcolor ="#FFFFFF"
 		shape = "box"
-		style = "filled, rounded"
+		style = "filled"
 		fontname = "Consolas,monospace"
 		fontsize = 10
+		height = 0.4
 	]
 """
 	dot += "\n".join(gates_definitions) + "\n"
 	dot += """
 	node [
 		color = "#DD0000"
-		fillcolor = "#F0F0F0"
+		fillcolor = "transparent"
 		fontcolor ="#000000"
-		shape = "oval"
+		shape = "plaintext"
 		style = "filled"
 		fontname = "Calibri,Arial,sans-serif"
 		fontsize = 14
+		height = 0.5
+		margin = 0
 	]
 """
 	dot += "\n".join(basic_events_definitions) + "\n"
@@ -90,10 +108,9 @@ digraph AttackTree {
 	dot += """
 	edge[
 		style = "dashed"
-		color = "#666666"
-		arrowhead = "vee"
-		arrowsize = 0.5
-		dir = "forward"
+		color = "#AAAAAA"
+		headclip = "false"
+		tailclip = "false"
 	]
 	"""
 	dot += "\n\t".join(sequence_relationships) + "\n"
