@@ -11,4 +11,4 @@ def falco21_fig4() -> AttackTree:
 	at11.add_attack("Get priviledged access to server")
 	at1.add_attack("Login to phpMyAdmin interface")
 	at.add_attack("Change data logged in flight database")
-	return AttackTree(at, "Temper data from CubeSAT")
+	return AttackTree(at)

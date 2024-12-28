@@ -25,7 +25,7 @@ def defcon_risk() -> AttackTree:
 	at2_3 = at2.add_gate(GateType.OR, "Bodily harm")
 	at2_3.add_attack("Targetted attack")
 	at2_3.add_attack("Mass attack")
-	return AttackTree(at2, "Defcon Risk")
+	return AttackTree(at2)
 
 
 def amezana_1() -> AttackTree:
@@ -43,4 +43,4 @@ def amezana_1() -> AttackTree:
 	or111.add_attack("Create trained agent")
 	or111.add_attack("Apply for employment")
 	or111.add_attack("Pass screening procedure")
-	return AttackTree(at, "Amezana 1")
+	return AttackTree(at)

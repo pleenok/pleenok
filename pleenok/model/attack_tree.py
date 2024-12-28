@@ -62,7 +62,5 @@ class Gate(Node):
 
 
 class AttackTree:
-	def __init__(self, root: Node, name: str, description: str = ""):
+	def __init__(self, root: Node):
 		self.root = root
-		self.name = name
-		self.description = description

@@ -42,7 +42,7 @@ def process_tree_to_attack_tree(process_tree: ProcessTree) -> AttackTree:
 			else:
 				return Node(pt.label)
 			
-	return AttackTree(traverse(process_tree), "Conversion from process tree")
+	return AttackTree(traverse(process_tree))
 
 
 def attack_tree_to_process_tree_string(at: AttackTree) -> str:
