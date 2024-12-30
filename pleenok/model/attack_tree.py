@@ -10,10 +10,17 @@ class GateType(Enum):
 	XOR = "XOR"
 
 
+class NodeType(Enum):
+	ATTACK = "ATTACK"
+	DEFENSE = "DEFENSE"
+
+
 class Node:
-	def __init__(self, label: str):
+	def __init__(self, label: str, node_type: NodeType = NodeType.ATTACK):
 		self._id = uuid.uuid4()
+		self.node_type = node_type
 		self.label = label
+		self.countermeasures = []
 
 	def get_label(self) -> str:
 		return self.label
@@ -21,30 +28,43 @@ class Node:
 	def get_id(self):
 		return self._id.hex
 
+	def add_countermeasure(self, countermeasure: Union['Node', 'Gate']):
+		if self.node_type == countermeasure.node_type:
+			raise Exception("Cannot add countermeasure of same type")
+		self.countermeasures.append(countermeasure)
+		return countermeasure
+
 	def __str__(self) -> str:
 		if self.label is None:
-			return "gate_" + self.get_id()
+			return "node_" + self.get_id()
 		else:
-			return self.label
+			return "[" + self.node_type.name + "]" + self.label
 
 
 class Gate(Node):
-	def __init__(self, gate_type: GateType, label: str = None):
-		super().__init__(label)
+	def __init__(self, gate_type: GateType, label: str = None, node_type: NodeType = NodeType.ATTACK):
+		super().__init__(label, node_type)
 		self.gate_type = gate_type
 		self.children = []
 
 	def add_child(self, child: Union['Gate', 'Node']):
+		if self.node_type != child.node_type:
+			raise Exception("Cannot add child of different type, use add_countermeasure instead")
 		self.children.append(child)
 		return self
 
 	def add_gate(self, gate_type: GateType, label: str = None):
-		g = Gate(gate_type, label)
+		g = Gate(gate_type, label, self.node_type)
 		self.add_child(g)
 		return g
 
 	def add_attack(self, attack: str):
-		be = Node(attack)
+		be = Node(attack, NodeType.ATTACK)
+		self.add_child(be)
+		return be
+
+	def add_defense(self, defense: str):
+		be = Node(defense, NodeType.DEFENSE)
 		self.add_child(be)
 		return be
 
