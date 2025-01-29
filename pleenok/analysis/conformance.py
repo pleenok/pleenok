@@ -14,7 +14,7 @@ def attack_successful(attack_tree: AttackTree, attack_log: pd.DataFrame):
 
 def closest_tree(attack_trees: Iterable[AttackTree], attack_events: Iterable[str]) -> AttackTree:
 	# construct the event log
-	events = [['case_1', event, '2021-01-01T00:00:00.000Z'] for event in attack_events]
+	events = [['case_1', event, pd.Timestamp.now()] for event in attack_events]
 	df = pd.DataFrame(events, columns=['case_id', 'activity', 'timestamp'])
 	attack_log = pm4py.format_dataframe(df, case_id='case_id', activity_key='activity', timestamp_key='timestamp')
 
